@@ -26,7 +26,7 @@ def setUp(board, width):
                     solvedEdge.append(cell)
                     unsolvedEdge.append(neighbors)
                     break
-    getHeuristic(solvedEdge, unsolvedEdge, board, width)
+    print(getHeuristic(solvedEdge, unsolvedEdge, board, width))
 
 
 
@@ -119,9 +119,21 @@ def getHeuristic(solEdge, unsolEdge, board, width):
         if(len(col) == solBombCounts[i]):
             for j, ind in enumerate(col):
                 for k, indComp in enumerate(unsolIndex):
-                    if(unsolIndex[k] == int(ind['index'])):
+                    if(unsolIndex[k] == int(ind['index'])): #loop to make squares that are certainly mines have a probability of 100%
                         BombProb[k] = 1
-    return BombProb
+
+    newTProb = 0;
+    for i in BombProb:
+        if (i != 1):
+            newTProb += i #get prob total after fixing bombs excluding known Bombs
+    for i, ind in enumerate(BombProb):
+        if (ind != 1):
+            BombProb[i] = ind / newTProb #normalize after fixing known bombs
+
+    retTuple = []
+    for i, ind in enumerate(unsolIndex):
+        retTuple.append((ind, BombProb[i]))
+    return retTuple
 
 
                 
@@ -175,11 +187,6 @@ def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of prob
     N = len(indexes)
     totalProb = 0
     rep([], 0)
-    for i in bombProb:
-        totalProb += i
-    for i, prob in enumerate(bombProb):
-        bombProb[i] = float(prob) / float(totalProb)
-
     return bombProb
 
 def getRemainingSpace(board):

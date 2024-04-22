@@ -8,10 +8,10 @@ def getBombNum(board, index, width): #get number of bombs around square to use i
         if(board[index + 1]['number'] == -1): #right side of index
             bombcount += 1
 
-        if(board[index - width + 1]['number'] == -1 and index // width != 0): #top right of index  
+        if(index // width != 0 and board[index - width + 1]['number'] == -1): #top right of index  
             bombcount += 1
 
-        if(board[index + width + 1]['number'] == -1 and index // width != width - 1): #bottom right of index
+        if(index // width != width - 1 and board[index + width + 1]['number'] == -1): #bottom right of index
             bombcount += 1
 
 
@@ -19,17 +19,17 @@ def getBombNum(board, index, width): #get number of bombs around square to use i
         if(board[index - 1]['number'] == -1): #left side of index
             bombcount += 1
 
-        if(board[index - width - 1]['number'] == -1 and index // width != 0): #top left of index
+        if(index // width != 0 and board[index - width - 1]['number'] == -1): #top left of index
             bombcount += 1
 
-        if(board[index + width - 1]['number'] == -1 and index // width != width - 1): #bottom left of index
+        if(index // width != width - 1 and board[index + width - 1]['number'] == -1): #bottom left of index
             bombcount += 1
 
 
-    if(board[index + width]['number'] == -1 and index // width != width - 1): #below index
+    if(index // width != width - 1 and board[index + width]['number'] == -1): #below index
         bombcount += 1
 
-    if(board[index - width]['number'] == -1 and index // width != 0): #above index
+    if(index // width != 0 and board[index - width]['number'] == -1): #above index
         bombcount += 1
 
     return bombcount
@@ -56,9 +56,22 @@ def getHeuristic(solEdge, unsolEdge, board, width):
         if(len(col) == solBombCounts[i]):
             for j, ind in enumerate(col):
                 for k, indComp in enumerate(unsolIndex):
-                    if(unsolIndex[k] == int(ind['index'])):
+                    if(unsolIndex[k] == int(ind['index'])): #loop to make squares that are certainly mines have a probability of 100%
                         BombProb[k] = 1
-    return BombProb
+
+    newTProb = 0;
+    for i in BombProb:
+        if (i != 1):
+            newTProb += i #get prob total after fixing bombs excluding known Bombs
+    for i, ind in enumerate(BombProb):
+        if (ind != 1):
+            BombProb[i] = ind / newTProb #normalize after fixing known bombs
+
+    retTuple = []
+    for i, ind in enumerate(unsolIndex):
+        retTuple.append((ind, BombProb[i]))
+    return retTuple
+
 
                 
 def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of probabilities, indexes correlate with arr passed as 'indexes'
@@ -111,11 +124,6 @@ def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of prob
     N = len(indexes)
     totalProb = 0
     rep([], 0)
-    for i in bombProb:
-        totalProb += i
-    for i, prob in enumerate(bombProb):
-        bombProb[i] = float(prob) / float(totalProb)
-        
     return bombProb
 
 def getRemainingSpace(board):
