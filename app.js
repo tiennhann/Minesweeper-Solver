@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid');
     const flagsLeft = document.querySelector('#flags-left');
     const result = document.querySelector('#result');
-    const width = 10;   // Width of the game board
-    let bombAmount = 20;    // Total number of bombs
+    const width = 5;   // Width of the game board
+    let bombAmount = 7;    // Total number of bombs
     let squares = [];   // Array to store each square in the game board
     let isGameOver = false; // Boolean to check if the game is over
     let flags = 0;  // Counter for flags placed on the board
@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 squares[i].setAttribute('mydata', total);
+                console.log('mydata', total);
             }
         }
     }
@@ -99,8 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 flags--;
             }
             flagsLeft.innerHTML = bombAmount - flags;
-            checkWin();
         }
+        checkWin();
     }
 
     function click(square) {
@@ -117,8 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 checkSquare(square);
             }
+            square.classList.add('checked');
+            checkWin();
         }
-        square.classList.add('checked');
     }
 
     function checkSquare(square) {
@@ -140,14 +142,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkWin() {
         let matches = 0;
+        let safeSquaresOpened = true;
+
         squares.forEach(square => {
             if (square.classList.contains('flag') && square.classList.contains('bomb')) {
                 matches++;
             }
+            if (!square.classList.contains('bomb') && !square.classList.contains('checked')) {
+                safeSquaresOpened = false;
+            }
         });
-        if (matches === bombAmount) {
+        if (matches === bombAmount || safeSquaresOpened) {
             result.innerHTML = "You Win!";
             isGameOver = true;
+            squares.forEach(square => {
+                if (square.classList.contains('bomb') && !square.classList.contains('flag')) {
+                    square.classList.add('flag');
+                    square.innerHTML = '🚩';
+                }
+            })
         }
     }
 
@@ -192,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error:', error));
     });
 
-
     document.getElementById('astar-button').addEventListener('click', () => {
         const board = squares.map(square => ({
             index: parseInt(square.id),
@@ -222,4 +234,3 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error:', error));
     });
 });
-
