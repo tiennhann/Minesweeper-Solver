@@ -52,8 +52,13 @@ def getHeuristic(solEdge, unsolEdge, board, width):
     
     BombProb = checkCombos(unsolIndex, board, solBombCounts, unsolPos)
 
-    # insert Portion to change spots that are certainly mines to 1
-
+    for i, col in enumerate(unsolEdge):
+        if(len(col) == solBombCounts[i]):
+            for j, ind in enumerate(col):
+                for k, indComp in enumerate(unsolIndex):
+                    if(unsolIndex[k] == int(ind['index'])):
+                        BombProb[k] = 1
+    return BombProb
 
                 
 def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of probabilities, indexes correlate with arr passed as 'indexes'
@@ -110,9 +115,7 @@ def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of prob
         totalProb += i
     for i, prob in enumerate(bombProb):
         bombProb[i] = float(prob) / float(totalProb)
-
-    print(indexes)
-    print(bombProb)
+        
     return bombProb
 
 def getRemainingSpace(board):
