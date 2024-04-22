@@ -10,6 +10,7 @@ def solve():
     board = data['board']
     width = data['width']
     solution = open_safe_squares(board)
+    print(data)
     return jsonify(solution)
 
 def open_safe_squares(board):

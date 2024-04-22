@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 squares[i].setAttribute('mydata', total);
+                console.log('mydata', total);
             }
         }
     }
@@ -99,8 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 flags--;
             }
             flagsLeft.innerHTML = bombAmount - flags;
-            checkWin();
         }
+        checkWin();
     }
 
     function click(square) {
@@ -117,8 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 checkSquare(square);
             }
+            square.classList.add('checked');
+            checkWin();
         }
-        square.classList.add('checked');
     }
 
     function checkSquare(square) {
@@ -140,14 +142,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkWin() {
         let matches = 0;
+        let safeSquaresOpened = true;
+
         squares.forEach(square => {
             if (square.classList.contains('flag') && square.classList.contains('bomb')) {
                 matches++;
             }
+            if (!square.classList.contains('bomb') && !square.classList.contains('checked')) {
+                safeSquaresOpened = false;
+            }
         });
-        if (matches === bombAmount) {
+        if (matches === bombAmount || safeSquaresOpened) {
             result.innerHTML = "You Win!";
             isGameOver = true;
+            squares.forEach(square => {
+                if (square.classList.contains('bomb') && !square.classList.contains('flag')) {
+                    square.classList.add('flag');
+                    square.innerHTML = '🚩';
+                }
+            })
         }
     }
 
@@ -192,4 +205,3 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error:', error));
     });
 });
-
