@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid');
     const flagsLeft = document.querySelector('#flags-left');
     const result = document.querySelector('#result');
-    const width = 10;   // Width of the game board
-    let bombAmount = 20;    // Total number of bombs
+    const width = 5;   // Width of the game board
+    let bombAmount = 7;    // Total number of bombs
     let squares = [];   // Array to store each square in the game board
     let isGameOver = false; // Boolean to check if the game is over
     let flags = 0;  // Counter for flags placed on the board
@@ -185,6 +185,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
 
         fetch('http://localhost:5001/solve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ board: board, width: width })
+        })
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(action => {
+                const targetSquare = squares[action.index];
+                if (action.action === 'click') {
+                    click(targetSquare);
+                } else if (action.action === 'flag') {
+                    addFlag(targetSquare);
+                }
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('astar-button').addEventListener('click', () => {
+        const board = squares.map(square => ({
+            index: parseInt(square.id),
+            status: square.classList.contains('checked') ? 'checked' : 'covered',
+            isFlagged: square.classList.contains('flag'),
+            number: square.getAttribute('mydata') === null?-1:0 
+        }));
+
+        fetch('http://localhost:5001/astar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
