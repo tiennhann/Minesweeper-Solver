@@ -1,5 +1,19 @@
 from math import comb
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from math import comb
 
+app = Flask(__name__)
+CORS(app, resources={r"/astar": {"origins": "*"}})  # Allowing all domains for the /astar endpoint
+
+
+@app.route('/astar', methods=['POST'])
+def astar():
+    data = request.get_json()
+    board = data['board']
+    width = data['width']
+    setUp(board, width)
+    return jsonify(board)
 
 def getBombNum(board, index, width): #get number of bombs around square to use in hueristic 
     bombcount = 0
@@ -70,7 +84,10 @@ def getHeuristic(solEdge, unsolEdge, board, width):
     retTuple = []
     for i, ind in enumerate(unsolIndex):
         retTuple.append((ind, BombProb[i]))
+    print(retTuple)
     return retTuple
+
+
 
 
                 
