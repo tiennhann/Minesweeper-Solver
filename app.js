@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 squares[i].setAttribute('mydata', total);
-                console.log('mydata', total);
+
             }
         }
     }
@@ -181,7 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
             index: parseInt(square.id),
             status: square.classList.contains('checked') ? 'checked' : 'covered',
             isFlagged: square.classList.contains('flag'),
-            number: square.getAttribute('mydata') === null?-1:0 
+            number: square.getAttribute('mydata'), 
+            //number: square.classList.contains('checked') ? square.getAttribute('mydata') : null,
         }));
 
         fetch('http://localhost:5001/solve', {
@@ -191,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({ board: board, width: width })
         })
+        
         .then(response => response.json())
         .then(data => {
             data.forEach(action => {
@@ -198,10 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (action.action === 'click') {
                     click(targetSquare);
                 } else if (action.action === 'flag') {
-                    addFlag(targetSquare);
+                    if (!targetSquare.classList.contains('flag')) {
+                        addFlag(targetSquare);
+                    }
                 }
             });
         })
+        
         .catch(error => console.error('Error:', error));
     });
 });
