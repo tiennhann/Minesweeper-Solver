@@ -3,8 +3,8 @@
 }
 
 .grid {
-    height: 200px;
-    width: 200px;
+    height: 300px;
+    width: 300px;
     background-color: #dcd6bc;
     display: flex;
     flex-wrap: wrap;
