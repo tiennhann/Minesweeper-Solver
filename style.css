@@ -1,10 +1,10 @@
 .container {
-    width: 250px;
+    width: 225px;
 }
 
 .grid {
-    height: 300px;
-    width: 300px;
+    height: 200px;
+    width: 200px;
     background-color: #dcd6bc;
     display: flex;
     flex-wrap: wrap;
