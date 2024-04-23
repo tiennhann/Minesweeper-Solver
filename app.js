@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid');
     const flagsLeft = document.querySelector('#flags-left');
     const result = document.querySelector('#result');
-    const width = 10;   // Width of the game board
-    let bombAmount = 20;    // Total number of bombs
+    const width = 5;   // Width of the game board
+    let bombAmount = 7;    // Total number of bombs
     let squares = [];   // Array to store each square in the game board
     let isGameOver = false; // Boolean to check if the game is over
     let flags = 0;  // Counter for flags placed on the board
@@ -80,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 squares[i].setAttribute('mydata', total);
-
             }
         }
     }
@@ -210,3 +209,4 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error:', error));
     });
 });
+

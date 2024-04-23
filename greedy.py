@@ -53,5 +53,6 @@ def get_surrounding_cells(index, width):
     return surrounding
 
 if __name__ == '__main__':
+    
     app.run(host='0.0.0.0', port=5001, debug=True)
 
