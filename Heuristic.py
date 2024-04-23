@@ -79,46 +79,6 @@ def getBombNum(board, index, width): #get number of bombs around square to use i
         bombcount += 1
 
     return bombcount
-
-def getHeuristic(solEdge, unsolEdge, board, width):
-    solBombCounts = [] #numb of boms for each seen edge
-    unsolIndex = [] #index of each unsolved square
-    unsolPos = [] #index mapping to solutions
-
-    for i in solEdge:
-        solBombCounts.append(getBombNum(board, i['index'], width)) #loop to fill bombcounts
-    
-    for i in unsolEdge:
-        temp = []
-        for j in i:
-            temp.append(int(j['index']))
-            if j['index'] not in unsolIndex:
-                unsolIndex.append(j['index']) #loop to fill unSolindex with indeces
-        unsolPos.append(temp)
-    
-    BombProb = checkCombos(unsolIndex, board, solBombCounts, unsolPos)
-
-    for i, col in enumerate(unsolEdge):
-        if(len(col) == solBombCounts[i]):
-            for j, ind in enumerate(col):
-                for k, indComp in enumerate(unsolIndex):
-                    if(unsolIndex[k] == int(ind['index'])): #loop to make squares that are certainly mines have a probability of 100%
-                        BombProb[k] = 1
-
-    newTProb = 0;
-    for i in BombProb:
-        if (i != 1):
-            newTProb += i #get prob total after fixing bombs excluding known Bombs
-    for i, ind in enumerate(BombProb):
-        if (ind != 1):
-            BombProb[i] = ind / newTProb #normalize after fixing known bombs
-
-    retTuple = []
-    for i, ind in enumerate(unsolIndex):
-        retTuple.append((ind, BombProb[i]))
-    return retTuple
-
-
                 
 def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of probabilities, indexes correlate with arr passed as 'indexes'
     bombPos = []
