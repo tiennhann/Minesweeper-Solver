@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const flagsLeft = document.querySelector('#flags-left');
     const result = document.querySelector('#result');
     const width = 5;   // Width of the game board
-    let bombAmount = 7;    // Total number of bombs
+    let bombAmount = 5;    // Total number of bombs
     let squares = [];   // Array to store each square in the game board
     let isGameOver = false; // Boolean to check if the game is over
     let flags = 0;  // Counter for flags placed on the board
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (
                         index >= 0 && index < width * width && // must be inside the grid
                         !(isLeftEdge && [-1, -width - 1, +width - 1].includes(offset)) && // must not be on the left
-                        !(isRightEdge && [-1, -width + 1, +width + 1].includes(offset)) // must not be on the right
+                        !(isRightEdge && [+1, -width + 1, +width + 1].includes(offset)) // must not be on the right
                     ) {
                         if(squares[index].classList.contains('bomb'))
                             total++;

@@ -1,5 +1,51 @@
 from math import comb
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from math import comb
 
+app = Flask(__name__)
+CORS(app, resources={r"/astar": {"origins": "*"}})  # Allowing all domains for the /astar endpoint
+
+def getHeuristic(solEdge, unsolEdge, board, width):
+    solBombCounts = [] #numb of boms for each seen edge
+    unsolIndex = [] #index of each unsolved square
+    unsolPos = [] #index mapping to solutions
+
+    for i in solEdge:
+        solBombCounts.append(getBombNum(board, i['index'], width)) #loop to fill bombcounts
+    
+    for i in unsolEdge:
+        temp = []
+        for j in i:
+            temp.append(int(j['index']))
+            if j['index'] not in unsolIndex:
+                unsolIndex.append(j['index']) #loop to fill unSolindex with indeces
+        unsolPos.append(temp)
+    
+    BombProb = checkCombos(unsolIndex, board, solBombCounts, unsolPos)
+
+    for i, col in enumerate(unsolEdge):
+        if(len(col) == solBombCounts[i]):
+            for j, ind in enumerate(col):
+                for k, indComp in enumerate(unsolIndex):
+                    if(unsolIndex[k] == int(ind['index'])): #loop to make squares that are certainly mines have a probability of 100%
+                        BombProb[k] = 1
+
+    newTProb = 0
+    for i in BombProb:
+        if (i != 1):
+            newTProb += i #get prob total after fixing bombs excluding known Bombs
+    for i, ind in enumerate(BombProb):
+        if (ind != 1):
+            if(newTProb == 0):
+                BombProb[i] == 0
+            else:
+                BombProb[i] = ind / newTProb #normalize after fixing known bombs
+
+    retTuple = []
+    for i, ind in enumerate(unsolIndex):
+        retTuple.append((ind, BombProb[i]))
+    return retTuple
 
 def getBombNum(board, index, width): #get number of bombs around square to use in hueristic 
     bombcount = 0
@@ -33,46 +79,6 @@ def getBombNum(board, index, width): #get number of bombs around square to use i
         bombcount += 1
 
     return bombcount
-
-def getHeuristic(solEdge, unsolEdge, board, width):
-    solBombCounts = [] #numb of boms for each seen edge
-    unsolIndex = [] #index of each unsolved square
-    unsolPos = [] #index mapping to solutions
-
-    for i in solEdge:
-        solBombCounts.append(getBombNum(board, i['index'], width)) #loop to fill bombcounts
-    
-    for i in unsolEdge:
-        temp = []
-        for j in i:
-            temp.append(int(j['index']))
-            if j['index'] not in unsolIndex:
-                unsolIndex.append(j['index']) #loop to fill unSolindex with indeces
-        unsolPos.append(temp)
-    
-    BombProb = checkCombos(unsolIndex, board, solBombCounts, unsolPos)
-
-    for i, col in enumerate(unsolEdge):
-        if(len(col) == solBombCounts[i]):
-            for j, ind in enumerate(col):
-                for k, indComp in enumerate(unsolIndex):
-                    if(unsolIndex[k] == int(ind['index'])): #loop to make squares that are certainly mines have a probability of 100%
-                        BombProb[k] = 1
-
-    newTProb = 0;
-    for i in BombProb:
-        if (i != 1):
-            newTProb += i #get prob total after fixing bombs excluding known Bombs
-    for i, ind in enumerate(BombProb):
-        if (ind != 1):
-            BombProb[i] = ind / newTProb #normalize after fixing known bombs
-
-    retTuple = []
-    for i, ind in enumerate(unsolIndex):
-        retTuple.append((ind, BombProb[i]))
-    return retTuple
-
-
                 
 def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of probabilities, indexes correlate with arr passed as 'indexes'
     bombPos = []
@@ -114,7 +120,8 @@ def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of prob
                 for i, prob in enumerate(bombProb):
                     if(bombProb[i] == None):
                         bombProb[i] = 0
-                    bombProb[i] += current[i] * comb(getRemainingSpace(board) - len(indexes), getRemainingBombs(board) - count)
+                    print(str(getRemainingBombs(board)) + " " + str(count))
+                    bombProb[i] += current[i] * comb(getRemainingSpace(board) - len(indexes), getRemainingBombs(board))
             return
         for val in [1, 0]: # 1= bomb 0 = safe
             current.append(val)
