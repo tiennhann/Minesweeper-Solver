@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from Heuristic import getHeuristic
+from Heuristic import getHeuristic, getBombNum
+from Astar import getNeighbors
 
 app = Flask(__name__)
 CORS(app, resources={r"/minimax": {"origins": "*"}})  # Allow all domains for the /minimax endpoint
 
 FIRST_MOVE = True  # Global variable to track the first move
+Flags = []
 
 @app.route('/minimax', methods=['POST'])
 def minimax():
@@ -14,7 +16,7 @@ def minimax():
     move = []
     data = request.get_json()
     board = data['board']
-    width = 7  # Set width to 7 for a 7x7 game board
+    width = data['width']  # Set width to 7 for a 7x7 game board
 
     for cell in board:
         if cell['status'] == 'checked':
@@ -25,19 +27,45 @@ def minimax():
         FIRST_MOVE = True
 
     if FIRST_MOVE:
-        move.append({'index': 0, 'action': 'click'})
+        ind = 0
+        for i, cell in enumerate(board):
+            if(getBombNum(board, i, width) == 0 and cell['number'] != -1):
+                ind = i
+                break
+
+        move.append({'index': i, 'action': 'click'})
+        
         FIRST_MOVE = False
     else:
         probabilities = set_up(board, width)
-        min_index = probabilities[0][1]
-        min_val = probabilities[0][0]
+        min_index = probabilities[0][0]
+        min_val = probabilities[0][1] 
+        max_index = probabilities[0][0]#tuple index was backwards for these 1 = prob 0 = index
+
+        hasBomb = False
 
         for probability in probabilities:
+            isFlagged = False
+            for cell in board:
+                if cell['index'] == probability[0]:
+                    print(' in index')
+                    if cell['isFlagged'] == True:
+                        print('in flag')
+                        isFlagged = True            #check if space is flagged
+
             if float(probability[1]) < min_val:
                 min_index = probability[0]
                 min_val = probability[1]
 
-        move.append({'index': min_index, 'action': 'click'})
+            if float(probability[1]) == 1 and not isFlagged: #this actually causes issues since it may flag a square thats not a bomb but has the highest prob to be one (still chance to not be)
+                max_index = probability[0]
+                hasBomb = True
+
+            
+        move.append({'index': min_index, 'action': 'click'})#minimize
+        if hasBomb:
+            move.append({'index': max_index, 'action': 'flag'})#maximize when agent has available move
+        
 
     return jsonify(move)
 
@@ -114,7 +142,7 @@ def set_up(board, width):
 
     for i, cell in enumerate(board):
         if cell['status'] == 'checked':
-            neighbors = get_neighbors(board, i, width)
+            neighbors = getNeighbors(board, i, width)
             for n in neighbors:
                 if n['status'] == 'covered':
                     solved_edge.append(cell)
