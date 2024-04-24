@@ -120,7 +120,7 @@ def checkCombos(indexes, board, bombcount, unsolPos): #returns back list of prob
                 for i, prob in enumerate(bombProb):
                     if(bombProb[i] == None):
                         bombProb[i] = 0
-                    print(str(getRemainingBombs(board)) + " " + str(count))
+                    #print(str(getRemainingBombs(board)) + " " + str(count))
                     bombProb[i] += current[i] * comb(getRemainingSpace(board) - len(indexes), getRemainingBombs(board))
             return
         for val in [1, 0]: # 1= bomb 0 = safe

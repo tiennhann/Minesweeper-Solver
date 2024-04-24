@@ -233,4 +233,34 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => console.error('Error:', error));
     });
+
+     document.getElementById('minimax-button').addEventListener('click', () => {
+        const board = squares.map(square => ({
+            index: parseInt(square.id),
+            status: square.classList.contains('checked') ? 'checked' : 'covered',
+            isFlagged: square.classList.contains('flag'),
+            number: square.getAttribute('mydata') === null?-1:0 
+        }));
+
+        fetch('http://localhost:5001/minimax', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ board: board, width: width })
+        })
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(action => {
+                const targetSquare = squares[action.index];
+                if (action.action === 'click') {
+                    click(targetSquare);
+                } else if (action.action === 'flag') {
+                    addFlag(targetSquare);
+                }
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+        
 });
