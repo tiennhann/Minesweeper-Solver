@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from Heuristic import getHeuristic
+from Heuristic import getHeuristic, getBombNum
 
 app = Flask(__name__)
 CORS(app, resources={r"/solve": {"origins": "*"}})
@@ -36,8 +36,11 @@ def is_new_board(board):
     return all(cell['status'] == 'covered' for cell in board)
 
 def get_initial_move_index(board, width):
-    # Typically, we might choose the center or a corner to start
-    return width * (width // 2) + (width // 2)
+    index = 0
+    for cell in board:
+        if getBombNum(board, cell['index'], width) == 0 and cell['number'] != -1:
+            index = int(cell['index'])
+    return index
 
 def setUp(board, width):
     solvedEdge = []
