@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from math import comb
-from Heuristic import getHeuristic
+from Heuristic import getHeuristic, getBombNum
 
 app = Flask(__name__)
 CORS(app, resources={r"/astar": {"origins": "*"}})  # Allowing all domains for the /astar endpoint
 global firstMove
 firstMove = True
+
+global flagged 
+flagged = []
 
 @app.route('/astar', methods=['POST'])
 def astar():
@@ -26,13 +29,21 @@ def astar():
         firstMove = True
 
     if firstMove:
-        move.append({'index': 0, 'action': 'click'})
+        ind = 0
+        for i, cell in enumerate(board):
+            if(getBombNum(board, i, width) == 0 and cell['number'] != -1):
+                ind = i
+                break
+        move.append({'index': i, 'action': 'click'})
         firstMove = False
     else:
         probs = setUp(board, width)
         minIndex = probs[0][1]
         minVal = probs[0][0]
         for i in probs:
+            if (float(i[1]) == 1 and int(i[0]) not in set(flagged)):
+                move.append({'index': i[0], 'action': 'flag'}) 
+                flagged.append(int(i[0])) 
             if (float(i[1]) < minVal):
                 minIndex = i[0]
                 minVal = i[1] 
